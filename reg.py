@@ -4,7 +4,7 @@ import mysql.connector
 # Function to connect to MySQL database
 def get_connection():
     return mysql.connector.connect(
-        host="82.180.143.66",
+        host="82.180.143.66", 
         user="u263681140_students",
         password="testStudents@123",
         database="u263681140_students"
