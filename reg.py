@@ -60,5 +60,6 @@ with st.form("patient_form"):
             st.info("No patients registered yet.")
     except Exception as e:
         st.error(f"❌ Error fetching data: {e}")
+        streamlit run patient.py
 
 
