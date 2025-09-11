@@ -48,4 +48,17 @@ with st.form("patient_form"):
             st.success("Patient registered successfully!")
         except Exception as e:
             st.error(f"Error: {e}")
+            elif menu == "View All Patients":
+    st.subheader("📋 All Registered Patients")
+
+    try:
+        data = get_all_patients()
+        if data:
+            df = pd.DataFrame(data)
+            st.dataframe(df, use_container_width=True)
+        else:
+            st.info("No patients registered yet.")
+    except Exception as e:
+        st.error(f"❌ Error fetching data: {e}")
+
 
