@@ -1,10 +1,12 @@
 import streamlit as st
 import mysql.connector
+import pandas as pd
+from datetime import datetime
 
-# Function to connect to MySQL database 
+# Function to connect to MySQL database
 def get_connection():
     return mysql.connector.connect(
-        host="82.180.143.66", 
+        host="82.180.143.66",
         user="u263681140_students",
         password="testStudents@123",
         database="u263681140_students"
@@ -24,31 +26,64 @@ def insert_patient(data):
     cursor.close()
     conn.close()
 
-# Streamlit form
-st.title("Patient Registration Form")
+# Function to fetch all registered patients
+def get_all_patients():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM E_casepatient ORDER BY ID DESC")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
 
-with st.form("patient_form"):
-    name = st.text_input("Full Name")
-    rfid = st.text_input("RFID No")
-    age = st.text_input("Age")
-    gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-    blood_group = st.text_input("Blood Group")
-    dob = st.date_input("Date of Birth")
-    contact = st.text_input("Contact Number")
-    email = st.text_input("Email ID")
-    address = st.text_area("Address")
-    doctor = st.text_input("Doctor Assigned")
+# Streamlit App
+st.title("🧾 Patient Registration System")
 
-    submitted = st.form_submit_button("Register Patient")
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients"])
 
-    if submitted:
-        try:
-            insert_patient((name, rfid, age, gender, blood_group, dob.strftime('%Y-%m-%d'),
-                            contact, email, address, doctor))
-            st.success("Patient registered successfully!")
-        except Exception as e:
-            st.error(f"Error: {e}")
-            elif menu == "View All Patients":
+if menu == "Register Patient":
+    with st.form("patient_form"):
+        st.subheader("Register New Patient")
+
+        name = st.text_input("Full Name")
+        rfid = st.text_input("RFID No")
+        age = st.text_input("Age")
+        gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+        blood_group = st.text_input("Blood Group")
+        dob = st.date_input("Date of Birth")
+        contact = st.text_input("Contact Number")
+        email = st.text_input("Email ID")
+        address = st.text_area("Address")
+        doctor = st.text_input("Doctor Assigned")
+
+        submitted = st.form_submit_button("Register Patient")
+
+        if submitted:
+            try:
+                # Convert and validate age
+                try:
+                    age = int(age)
+                except ValueError:
+                    st.error("❌ Age must be a number.")
+                    st.stop()
+
+                # Ensure dob is in string format
+                if isinstance(dob, str):
+                    dob_str = dob  # unlikely, but safe fallback
+                else:
+                    dob_str = dob.strftime('%Y-%m-%d')
+
+                # Insert into DB
+                insert_patient((
+                    name, rfid, age, gender, blood_group, dob_str,
+                    contact, email, address, doctor
+                ))
+
+                st.success("✅ Patient registered successfully!")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+
+elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
 
     try:
@@ -60,6 +95,3 @@ with st.form("patient_form"):
             st.info("No patients registered yet.")
     except Exception as e:
         st.error(f"❌ Error fetching data: {e}")
-        streamlit run patient.py
-
-
