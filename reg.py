@@ -1,7 +1,7 @@
 import streamlit as st
 import mysql.connector
 
-# Function to connect to MySQL database
+# Function to connect to MySQL database 
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66", 
