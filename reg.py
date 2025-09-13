@@ -67,7 +67,7 @@ def get_rfid_logs():
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
-menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "View RFID Logs" ])
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", ])
 
 if menu == "Register Patient":
     with st.form("patient_form"):
