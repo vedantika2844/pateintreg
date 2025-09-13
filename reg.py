@@ -92,7 +92,7 @@ if menu == "Register Patient":
                     st.stop()
 
                 # Convert DOB
- dob_str = dob.strftime('%Y-%m-%d')
+                 dob_str = dob.strftime('%Y-%m-%d')
 
                 # Insert into DB
                 insert_patient((
