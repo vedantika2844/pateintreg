@@ -48,7 +48,7 @@ def get_all_medical_history():
     finally:
         cursor.close()
         conn.close()
-  return rows
+        return rows
 
 # Function to fetch medical history records
 def get_all_medical_history():
