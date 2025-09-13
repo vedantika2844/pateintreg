@@ -25,6 +25,15 @@ def insert_patient(data):
     conn.commit()
     cursor.close()
     conn.close()
+    
+    def get_all_patients():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM E_casepatient ORDER BY ID DESC")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
 
 # Function to fetch all registered patients
 def get_all_patients():
@@ -95,3 +104,21 @@ elif menu == "View All Patients":
             st.info("No patients registered yet.")
     except Exception as e:
         st.error(f"❌ Error fetching data: {e}")
+        elif menu == "View Medical History":
+    st.subheader("📖 Medical History Records")
+
+    try:
+        # Optional: Filter by RFIDNo
+        rfid_filter = st.text_input("Enter RFID No to filter (optional)")
+
+        data = get_all_medical_history()
+        if rfid_filter:
+             data = [record for record in data if record['RFIDNo'] == rfid_filter]
+  if data:
+            df = pd.DataFrame(data)
+            st.dataframe(df, use_container_width=True)
+        else:
+            st.info("No medical history records found.")
+    except Exception as e:
+ st.error(f"❌ Error fetching medical history: {e}")
+        
