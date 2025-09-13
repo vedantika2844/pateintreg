@@ -53,6 +53,8 @@ def get_all_patients():
         return [dict(zip(columns, row)) for row in rows]
         cursor.close()
         conn.close()
+        
+# Function to fetch current appointment records
 
  def get_current_appointments():
     conn = get_connection()
