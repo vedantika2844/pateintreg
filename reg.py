@@ -39,8 +39,8 @@ def get_all_patients():
 # Function to fetch medical history records
 
     def get_all_medical_history():
-    conn = get_connection()
-    cursor = conn.cursor()
+      conn = get_connection()
+      cursor = conn.cursor()
     try:
         # ✅ Make sure the table name is spelled correctly
         cursor.execute("SELECT * FROM medical_history ORDER BY ID DESC")
