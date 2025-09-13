@@ -52,7 +52,6 @@ def get_all_patients():
 
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
-
         cursor.close()
         conn.close()
 
