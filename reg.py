@@ -17,7 +17,7 @@ def insert_patient(data):
     conn = get_connection()
     cursor = conn.cursor()
     sql = """
-        INSERT INTO E_casepatient 
+    INSERT INTO E_casepatient 
         (Name, RFIDNO, Age, Gender, BloodGroup, DateofBirth, ContactNo, EmailID, Address, DoctorAssigned)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
@@ -34,46 +34,43 @@ def get_all_patients():
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
-    return rows
+      return rows
 
 # Function to fetch medical history records
-
-   def get_all_medical_history():
+def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM `medical_histroy` ORDER BY `ID` DESC")
+        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Line 30 fixed
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
     finally:
         cursor.close()
         conn.close()
+  return rows
 
-# ✅ Move get_rfid_logs() here, NOT inside any other function
-def get_rfid_logs():
+# Function to fetch medical history records
+def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM `rfid_logs` ORDER BY `ID` DESC")
+        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Line 30 fixed
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
     finally:
         cursor.close()
         conn.close()
-
-
 # Streamlit App
 st.title("🧾 Patient Registration System")
-menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "View RFID Logs"])
 
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History"])
 
 if menu == "Register Patient":
     with st.form("patient_form"):
         st.subheader("Register New Patient")
-
-        name = st.text_input("Full Name")
+         name = st.text_input("Full Name")
         rfid = st.text_input("RFID No")
         age = st.text_input("Age")
         gender = st.selectbox("Gender", ["Male", "Female", "Other"])
@@ -85,8 +82,7 @@ if menu == "Register Patient":
         doctor = st.text_input("Doctor Assigned")
 
         submitted = st.form_submit_button("Register Patient")
-
-        if submitted:
+ if submitted:
             try:
                 # Validate age
                 try:
@@ -96,7 +92,7 @@ if menu == "Register Patient":
                     st.stop()
 
                 # Convert DOB
-                dob_str = dob.strftime('%Y-%m-%d')
+ dob_str = dob.strftime('%Y-%m-%d')
 
                 # Insert into DB
                 insert_patient((
@@ -106,15 +102,13 @@ if menu == "Register Patient":
 
                 st.success("✅ Patient registered successfully!")
             except Exception as e:
-                st.error(f"❌ Error: {e}")
-
 elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
 
     try:
         data = get_all_patients()
         if data:
-            df = pd.DataFrame(data)
+              df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No patients registered yet.")
@@ -127,8 +121,7 @@ elif menu == "View Medical History":
     try:
         rfid_filter = st.text_input("Enter RFID No to filter (optional)")
         data = get_all_medical_history()
-
-        if rfid_filter:
+  if rfid_filter:
             data = [record for record in data if record['RFIDNo'] == rfid_filter]
 
         if data:
@@ -137,22 +130,10 @@ elif menu == "View Medical History":
         else:
             st.info("No medical history records found.")
     except Exception as e:
-        st.error(f"❌ Error fetching medical history: {e}")
-        elif menu == "View RFID Logs":
-    st.subheader("📟 RFID Scan Logs")
+  st.error(f"❌ Error fetching medical history: {e}")
 
-    try:
-        data = get_rfid_logs()
+     
+                
 
-        if data:
-            df = pd.DataFrame(data)
-            df['DateTime'] = pd.to_datetime(df['DateTime'])  # Ensure it's parsed correctly
-            st.dataframe(df, use_container_width=True)
-        else:
-         st.info("No RFID logs found.")
-    except Exception as e:
-        st.error(f"❌ Error fetching RFID logs: {e}")
 
-   
-
-    
+      
