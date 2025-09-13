@@ -44,6 +44,17 @@ def get_all_patients():
     cursor.close()
     conn.close()
     return rows
+    
+    def get_all_medical_history():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")
+    rows = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]
+    cursor.close()
+    conn.close()
+    return [dict(zip(columns, row)) for row in rows]
+
 
 # Streamlit App
 st.title("🧾 Patient Registration System")
