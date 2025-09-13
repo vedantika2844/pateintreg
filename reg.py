@@ -70,7 +70,7 @@ menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View 
 if menu == "Register Patient":
     with st.form("patient_form"):
         st.subheader("Register New Patient")
-         name = st.text_input("Full Name")
+        name = st.text_input("Full Name")
         rfid = st.text_input("RFID No")
         age = st.text_input("Age")
         gender = st.selectbox("Gender", ["Male", "Female", "Other"])
