@@ -41,27 +41,14 @@ def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Line 30 fixed
+        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
     finally:
         cursor.close()
         conn.close()
-        return rows
 
-# Function to fetch medical history records
-def get_all_medical_history():
-    conn = get_connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Line 30 fixed
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-        return [dict(zip(columns, row)) for row in rows]
-    finally:
-        cursor.close()
-        conn.close()
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
@@ -92,7 +79,7 @@ if menu == "Register Patient":
                     st.stop()
 
                 # Convert DOB
-                 dob_str = dob.strftime('%Y-%m-%d')
+                dob_str = dob.strftime('%Y-%m-%d')
 
                 # Insert into DB
                 insert_patient((
@@ -102,13 +89,15 @@ if menu == "Register Patient":
 
                 st.success("✅ Patient registered successfully!")
             except Exception as e:
+                st.error(f"❌ Error: {e}")
+
 elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
 
     try:
         data = get_all_patients()
         if data:
-              df = pd.DataFrame(data)
+            df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No patients registered yet.")
@@ -121,7 +110,8 @@ elif menu == "View Medical History":
     try:
         rfid_filter = st.text_input("Enter RFID No to filter (optional)")
         data = get_all_medical_history()
-  if rfid_filter:
+
+        if rfid_filter:
             data = [record for record in data if record['RFIDNo'] == rfid_filter]
 
         if data:
@@ -130,10 +120,4 @@ elif menu == "View Medical History":
         else:
             st.info("No medical history records found.")
     except Exception as e:
-  st.error(f"❌ Error fetching medical history: {e}")
-
-     
-                
-
-
-      
+        st.error(f"❌ Error fetching medical history: {e}")
