@@ -63,7 +63,7 @@ def get_all_medical_history():
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
-menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History"])
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History, "View RFID Logs" ])
 
 if menu == "Register Patient":
     with st.form("patient_form"):
@@ -134,6 +134,20 @@ elif menu == "View Medical History":
             st.info("No medical history records found.")
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
+        elif menu == "View RFID Logs":
+    st.subheader("📟 RFID Scan Logs")
+
+    try:
+        data = get_rfid_logs()
+
+        if data:
+            df = pd.DataFrame(data)
+            df['DateTime'] = pd.to_datetime(df['DateTime'])  # Ensure it's parsed correctly
+            st.dataframe(df, use_container_width=True)
+        else:
+         st.info("No RFID logs found.")
+    except Exception as e:
+        st.error(f"❌ Error fetching RFID logs: {e}")
 
    
 
