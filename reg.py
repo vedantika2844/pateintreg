@@ -54,7 +54,6 @@ def get_all_patients():
         cursor.close()
         conn.close()
 
-
 def get_current_appointments():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
