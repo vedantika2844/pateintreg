@@ -38,7 +38,7 @@ def get_all_patients():
 
 # Function to fetch medical history records
 
-     def get_all_medical_history():
+    def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
