@@ -37,17 +37,26 @@ def get_all_patients():
     return rows
 
 # Function to fetch medical history records
-def get_all_medical_history():
+
+     def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_history ORDER BY ID DESC")  # fixed table name
+        # ✅ Make sure the table name is spelled correctly
+        cursor.execute("SELECT * FROM medical_history ORDER BY ID DESC")
         rows = cursor.fetchall()
+
+        # ✅ Prevents crash if cursor.description is None
+        if not rows or cursor.description is None:
+            return []
+
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
+
     finally:
         cursor.close()
         conn.close()
+
 
 def get_current_appointments():
     conn = get_connection()
