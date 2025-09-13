@@ -54,13 +54,13 @@ def get_current_appointments():
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("""
-            SELECT * FROM your_appointment_table_name
-            WHERE your_datetime_column >= NOW()
-            ORDER BY your_datetime_column ASC
+            SELECT * FROM appointments
+            WHERE appointment_datetime >= NOW()
+            ORDER BY appointment_datetime ASC
         """)
         rows = cursor.fetchall()
         return rows
-    finally:
+        finally:
         cursor.close()
         conn.close()
 
@@ -136,7 +136,8 @@ elif menu == "View Medical History":
             st.info("No medical history records found.")
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
-        elif menu == "Current Appointments":
+     
+elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
 
     try:
