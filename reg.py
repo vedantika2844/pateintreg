@@ -52,17 +52,18 @@ def get_all_medical_history():
 def get_current_appointments():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    # Adjust the query and table name/columns according to your appointment table
-    cursor.execute("""
-        SELECT * FROM appointments_table 
-        WHERE appointment_date >= CURDATE() 
-        ORDER BY appointment_date, appointment_time
-    """)
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return rows
-    
+    try:
+        cursor.execute("""
+            SELECT * FROM your_appointment_table_name
+            WHERE your_datetime_column >= NOW()
+            ORDER BY your_datetime_column ASC
+        """)
+        rows = cursor.fetchall()
+        return rows
+    finally:
+        cursor.close()
+        conn.close()
+
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
