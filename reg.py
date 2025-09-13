@@ -70,7 +70,7 @@ def get_current_appointments():
         rows = cursor.fetchall()
         return rows
         cursor.close()
-        conn.close()
+        conn.close() 
 
 # Streamlit App
 st.title("🧾 Patient Registration System")
