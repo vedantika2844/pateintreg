@@ -60,7 +60,6 @@ def get_current_appointments():
         """)
         rows = cursor.fetchall()
         return rows
-        finally:
         cursor.close()
         conn.close()
 
