@@ -34,7 +34,7 @@ def get_all_patients():
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
-      return rows
+    return rows
 
 # Function to fetch medical history records
 def get_all_medical_history():
