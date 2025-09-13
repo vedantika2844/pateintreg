@@ -49,6 +49,20 @@ def get_all_medical_history():
         cursor.close()
         conn.close()
 
+def get_current_appointments():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    # Adjust the query and table name/columns according to your appointment table
+    cursor.execute("""
+        SELECT * FROM appointments_table 
+        WHERE appointment_date >= CURDATE() 
+        ORDER BY appointment_date, appointment_time
+    """)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+    
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
@@ -121,3 +135,15 @@ elif menu == "View Medical History":
             st.info("No medical history records found.")
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
+        elif menu == "Current Appointments":
+    st.subheader("📅 Current Appointments")
+
+    try:
+        appointments = get_current_appointments()
+        if appointments:
+            df = pd.DataFrame(appointments)
+            st.dataframe(df, use_container_width=True)
+        else:
+            st.info("No current appointments found.")
+    except Exception as e:
+        st.error(f"❌ Error fetching appointments: {e}")
