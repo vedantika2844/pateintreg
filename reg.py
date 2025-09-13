@@ -37,18 +37,21 @@ def get_all_patients():
     return rows
 
 # Function to fetch medical history records
-def get_all_medical_history():
+
+   def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM `medical_histroy` ORDER BY `ID` DESC")  # ✅ Line 30 fixed
+        cursor.execute("SELECT * FROM `medical_histroy` ORDER BY `ID` DESC")
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
     finally:
         cursor.close()
         conn.close()
-        def get_rfid_logs():
+
+# ✅ Move get_rfid_logs() here, NOT inside any other function
+def get_rfid_logs():
     conn = get_connection()
     cursor = conn.cursor()
     try:
@@ -59,6 +62,7 @@ def get_all_medical_history():
     finally:
         cursor.close()
         conn.close()
+
 
 # Streamlit App
 st.title("🧾 Patient Registration System")
