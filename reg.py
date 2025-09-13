@@ -82,7 +82,7 @@ if menu == "Register Patient":
         doctor = st.text_input("Doctor Assigned")
 
         submitted = st.form_submit_button("Register Patient")
- if submitted:
+        if submitted:
             try:
                 # Validate age
                 try:
