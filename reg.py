@@ -53,7 +53,6 @@ def get_all_patients():
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
 
-    finally:
         cursor.close()
         conn.close()
 
@@ -97,7 +96,7 @@ if menu == "Register Patient":
                 # Validate age
                 try:
                     age = int(age)
-                except ValueError:
+                    ValueError:
                     st.error("❌ Age must be a number.")
                     st.stop()
 
@@ -111,7 +110,7 @@ if menu == "Register Patient":
                 ))
 
                 st.success("✅ Patient registered successfully!")
-            except Exception as e:
+                 Exception as e:
                 st.error(f"❌ Error: {e}")
 
 elif menu == "View All Patients":
@@ -124,7 +123,7 @@ elif menu == "View All Patients":
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No patients registered yet.")
-    except Exception as e:
+            Exception as e:
         st.error(f"❌ Error fetching data: {e}")
 
 elif menu == "View Medical History":
@@ -142,7 +141,7 @@ elif menu == "View Medical History":
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No medical history records found.")
-    except Exception as e:
+            Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
      
 elif menu == "Current Appointments":
@@ -155,5 +154,5 @@ elif menu == "Current Appointments":
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No current appointments found.")
-    except Exception as e:
+            Exception as e:
         st.error(f"❌ Error fetching appointments: {e}")
