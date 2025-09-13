@@ -49,7 +49,6 @@ def get_all_patients():
         # ✅ Prevents crash if cursor.description is None
         if not rows or cursor.description is None:
             return []
-
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
         cursor.close()
