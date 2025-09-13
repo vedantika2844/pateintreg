@@ -25,15 +25,6 @@ def insert_patient(data):
     conn.commit()
     cursor.close()
     conn.close()
-    
-    def get_all_patients():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM E_casepatient ORDER BY ID DESC")
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return rows
 
 # Function to fetch all registered patients
 def get_all_patients():
@@ -44,12 +35,13 @@ def get_all_patients():
     cursor.close()
     conn.close()
     return rows
-    
-    def get_all_medical_history():
+
+# Function to fetch medical history records
+def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM `medical_histroy` ORDER BY `ID` DESC")
+        cursor.execute("SELECT * FROM `medical_histroy` ORDER BY `ID` DESC")  # ✅ Line 30 fixed
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
@@ -60,7 +52,7 @@ def get_all_patients():
 # Streamlit App
 st.title("🧾 Patient Registration System")
 
-menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients"])
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History"])
 
 if menu == "Register Patient":
     with st.form("patient_form"):
@@ -81,18 +73,15 @@ if menu == "Register Patient":
 
         if submitted:
             try:
-                # Convert and validate age
+                # Validate age
                 try:
                     age = int(age)
                 except ValueError:
                     st.error("❌ Age must be a number.")
                     st.stop()
 
-                # Ensure dob is in string format
-                if isinstance(dob, str):
-                    dob_str = dob  # unlikely, but safe fallback
-                else:
-                    dob_str = dob.strftime('%Y-%m-%d')
+                # Convert DOB
+                dob_str = dob.strftime('%Y-%m-%d')
 
                 # Insert into DB
                 insert_patient((
@@ -116,21 +105,25 @@ elif menu == "View All Patients":
             st.info("No patients registered yet.")
     except Exception as e:
         st.error(f"❌ Error fetching data: {e}")
-        elif menu == "View Medical History":
+
+elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
 
     try:
-        # Optional: Filter by RFIDNo
         rfid_filter = st.text_input("Enter RFID No to filter (optional)")
-
         data = get_all_medical_history()
+
         if rfid_filter:
-             data = [record for record in data if record['RFIDNo'] == rfid_filter]
-  if data:
+            data = [record for record in data if record['RFIDNo'] == rfid_filter]
+
+        if data:
             df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No medical history records found.")
     except Exception as e:
- st.error(f"❌ Error fetching medical history: {e}")
-        
+        st.error(f"❌ Error fetching medical history: {e}")
+
+   
+
+    
