@@ -54,7 +54,7 @@ def get_all_patients():
         cursor.close()
         conn.close()
 
-    def get_current_appointments():
+ def get_current_appointments():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -65,8 +65,12 @@ def get_all_patients():
         """)
         rows = cursor.fetchall()
         return rows
+    except Exception as e:
+        st.error(f"❌ Failed to fetch current appointments: {e}")
+        return []
+    finally:
         cursor.close()
-        conn.close() 
+        conn.close()
 
 # Streamlit App
 st.title("🧾 Patient Registration System")
