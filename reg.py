@@ -3,7 +3,6 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 
-# ------------------- DB Connection -------------------
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66", 
@@ -12,7 +11,6 @@ def get_connection():
         database="u263681140_students"
     )
 
-# ------------------- Insert Patient -------------------
 def insert_patient(data):
     conn = get_connection()
     cursor = conn.cursor()
@@ -26,7 +24,7 @@ def insert_patient(data):
     cursor.close()
     conn.close()
 
-# ------------------- Get All Patients -------------------
+
 def get_all_patients():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -36,12 +34,12 @@ def get_all_patients():
     conn.close()
     return rows
 
-# ------------------- Get Medical History -------------------
+
 def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Corrected table name
+        cursor.execute("SELECT * FROM medical_history ORDER BY ID DESC")
         rows = cursor.fetchall()
         if not rows or cursor.description is None:
             return []
@@ -54,7 +52,6 @@ def get_all_medical_history():
         cursor.close()
         conn.close()
 
-# ------------------- Get Current Appointments -------------------
 def get_current_appointments(): 
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -64,12 +61,14 @@ def get_current_appointments():
             ORDER BY Date_Time DESC
         """)
         rows = cursor.fetchall()
-
-        # Add clickable "View History" link
+        
+        # Modify each row's status field to be a clickable URL
         for row in rows:
-            rfid_no = row['RFID_No']
-            row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
-
+            patient_id = row['id']
+            # Replace this URL with your actual patient history route
+            history_url = f"/patient_history?patient_id={patient_id}"
+            row['Status'] = f'<a href="{history_url}" target="_blank">View History</a>'
+        
         return rows
     except Exception as e:
         st.error(f"❌ Failed to fetch appointments: {e}")
@@ -79,34 +78,11 @@ def get_current_appointments():
         conn.close()
 
 
-# ------------------- Streamlit App -------------------
-st.set_page_config(page_title="Patient Management System", layout="wide")
+
 st.title("🧾 Patient Registration System")
 
-# ✅ Check for query param to show medical history
-rfid_filter = st.query_params.get("rfid_filter", [None])[0]
-
-if rfid_filter:
-    st.subheader(f"📖 Medical History for RFID: {rfid_filter}")
-    try:
-        history = get_all_medical_history()
-        filtered = [r for r in history if r.get("RFID_No") == rfid_filter or r.get("RFIDNO") == rfid_filter]
-
-        if filtered:
-            df = pd.DataFrame(filtered)
-            st.dataframe(df, use_container_width=True)
-        else:
-            st.warning("No medical history records found for this RFID.")
-    except Exception as e:
-        st.error(f"❌ Error fetching medical history: {e}")
-    
-    st.markdown("[🔙 Back to Dashboard](./)", unsafe_allow_html=True)
-    st.stop()  # ✅ Prevents rest of the app from rendering
-
-# ✅ If no query param, continue with normal app
 menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "Current Appointments"])
 
-# ------------------- Register Patient -------------------
 if menu == "Register Patient":
     with st.form("patient_form"):
         st.subheader("Register New Patient")
@@ -131,9 +107,10 @@ if menu == "Register Patient":
                     st.error("❌ Age must be a number.")
                     st.stop()
 
-                # Format DOB
+                # Convert DOB
                 dob_str = dob.strftime('%Y-%m-%d')
 
+                # Insert into DB
                 insert_patient((
                     name, rfid, age, gender, blood_group, dob_str,
                     contact, email, address, doctor
@@ -143,53 +120,44 @@ if menu == "Register Patient":
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
-# ------------------- View All Patients -------------------
 elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
     try:
-        patients = get_all_patients()
-        if patients:
-            df = pd.DataFrame(patients)
+        data = get_all_patients()
+        if data:
+            df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No patients registered yet.")
     except Exception as e:
-        st.error(f"❌ Error fetching patients: {e}")
+        st.error(f"❌ Error fetching data: {e}")
 
-# ------------------- View Medical History -------------------
 elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
     try:
-        rfid_input = st.text_input("Enter RFID No to filter (optional)")
-        records = get_all_medical_history()
+        rfid_filter = st.text_input("Enter RFID No to filter (optional)")
+        data = get_all_medical_history()
 
-        if rfid_input:
-            records = [r for r in records if r.get("RFID_No") == rfid_input or r.get("RFIDNO") == rfid_input]
+        if rfid_filter:
+            data = [record for record in data if record.get('RFIDNo') == rfid_filter]
 
-        if records:
-            df = pd.DataFrame(records)
+        if data:
+            df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No medical history records found.")
     except Exception as e:
-        st.error(f"❌ Error fetching history: {e}")
+        st.error(f"❌ Error fetching medical history: {e}")
 
-# ------------------- View Current Appointments -------------------
+
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
     try:
         appointments = get_current_appointments()
         if appointments:
             df = pd.DataFrame(appointments)
-
-            # Show appointments with HTML link rendered
-            for _, row in df.iterrows():
-                st.markdown(f"""
-                **RFID:** {row['RFID_No']}  
-                **Date/Time:** {row['Date_Time']}  
-                **Status:** {row['Status']}  
-                ---
-                """, unsafe_allow_html=True)
+            st.dataframe(df, use_container_width=True)
         else:
             st.info("No current appointments found.")
-    exce
+    except Exception as e:
+        st.error(f"❌ Error fetching appointments: {e}")
