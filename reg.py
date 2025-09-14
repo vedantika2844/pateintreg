@@ -55,7 +55,7 @@ def get_all_medical_history():
         conn.close()
 
 # ----------------- Get Current Appointments -----------------
-elif menu == "Current Appointments":
+  elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
     try:
         appointments = get_current_appointments()
@@ -65,9 +65,10 @@ elif menu == "Current Appointments":
             # Only keep necessary columns
             display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
 
-            # Convert DataFrame to HTML table with clickable links
+            # ✅ This is line 58 (likely)
             html_table = display_df.to_html(escape=False, index=False)
 
+            # Display the table
             st.markdown("### Appointments Table")
             st.write(html_table, unsafe_allow_html=True)
 
@@ -76,7 +77,7 @@ elif menu == "Current Appointments":
     except Exception as e:
         st.error(f"❌ Error fetching appointments: {e}")
 
-        
+            
 
 
 # ----------------- Streamlit UI -----------------
