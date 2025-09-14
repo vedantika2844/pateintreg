@@ -3,7 +3,6 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 
-# Function to connect to MySQL database
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66", 
@@ -12,21 +11,20 @@ def get_connection():
         database="u263681140_students"
     )
 
-# Function to insert patient data
 def insert_patient(data):
     conn = get_connection()
     cursor = conn.cursor()
     sql = """
     INSERT INTO E_casepatient 
-        (Name, RFIDNO, Age, Gender, BloodGroup, DateofBirth, ContactNo, EmailID, Address, DoctorAssigned)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    (Name, RFIDNO, Age, Gender, BloodGroup, DateofBirth, ContactNo, EmailID, Address, DoctorAssigned)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     cursor.execute(sql, data)
     conn.commit()
     cursor.close()
     conn.close()
 
-# Function to fetch all registered patients
+
 def get_all_patients():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -36,29 +34,27 @@ def get_all_patients():
     conn.close()
     return rows
 
-# Function to fetch medical history records
 
-    def get_all_medical_history():
-      conn = get_connection()
-      cursor = conn.cursor()
+def get_all_medical_history():
+    conn = get_connection()
+    cursor = conn.cursor()
     try:
-        # ✅ Make sure the table name is spelled correctly
         cursor.execute("SELECT * FROM medical_history ORDER BY ID DESC")
         rows = cursor.fetchall()
-
-        # ✅ Prevents crash if cursor.description is None
         if not rows or cursor.description is None:
             return []
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        st.error(f"❌ Error fetching medical history: {e}")
+        return []
+    finally:
         cursor.close()
         conn.close()
-        
-# Function to fetch current appointment records
 
-   def get_current_appointments():
-     conn = get_connection()
-     cursor = conn.cursor(dictionary=True)
+def get_current_appointments():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("""
             SELECT * FROM appointments
@@ -74,10 +70,9 @@ def get_all_patients():
         cursor.close()
         conn.close()
 
-# Streamlit App
 st.title("🧾 Patient Registration System")
 
-menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History"])
+menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "Current Appointments"])
 
 if menu == "Register Patient":
     with st.form("patient_form"):
@@ -99,7 +94,7 @@ if menu == "Register Patient":
                 # Validate age
                 try:
                     age = int(age)
-                    ValueError:
+                except ValueError:
                     st.error("❌ Age must be a number.")
                     st.stop()
 
@@ -113,12 +108,11 @@ if menu == "Register Patient":
                 ))
 
                 st.success("✅ Patient registered successfully!")
-                 Exception as e:
+            except Exception as e:
                 st.error(f"❌ Error: {e}")
 
 elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
-
     try:
         data = get_all_patients()
         if data:
@@ -126,30 +120,29 @@ elif menu == "View All Patients":
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No patients registered yet.")
-            Exception as e:
+    except Exception as e:
         st.error(f"❌ Error fetching data: {e}")
 
 elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
-
     try:
         rfid_filter = st.text_input("Enter RFID No to filter (optional)")
         data = get_all_medical_history()
 
         if rfid_filter:
-            data = [record for record in data if record['RFIDNo'] == rfid_filter]
+            data = [record for record in data if record.get('RFIDNo') == rfid_filter]
 
         if data:
             df = pd.DataFrame(data)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No medical history records found.")
-            Exception as e:
+    except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
-     
+
+
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
-
     try:
         appointments = get_current_appointments()
         if appointments:
@@ -157,5 +150,8 @@ elif menu == "Current Appointments":
             st.dataframe(df, use_container_width=True)
         else:
             st.info("No current appointments found.")
-            Exception as e:
+    except Exception as e:
         st.error(f"❌ Error fetching appointments: {e}")
+
+ 
+      
