@@ -52,7 +52,7 @@ def get_all_medical_history():
         cursor.close()
         conn.close()
 
-def get_current_appointments():
+def get_current_appointments(): 
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -61,6 +61,14 @@ def get_current_appointments():
             ORDER BY Date_Time DESC
         """)
         rows = cursor.fetchall()
+        
+        # Modify each row's status field to be a clickable URL
+        for row in rows:
+            patient_id = row['id']
+            # Replace this URL with your actual patient history route
+            history_url = f"/patient_history?patient_id={patient_id}"
+            row['Status'] = f'<a href="{history_url}" target="_blank">View History</a>'
+        
         return rows
     except Exception as e:
         st.error(f"❌ Failed to fetch appointments: {e}")
