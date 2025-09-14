@@ -55,16 +55,23 @@ def get_all_medical_history():
         conn.close()
 
 # -------------------- Fetch Appointments --------------------
+
+        
 def get_current_appointments():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM E_Case ORDER BY Date_Time DESC")
         rows = cursor.fetchall()
+
+        # ✅ Add clickable View History link for each row
         for row in rows:
             rfid_no = row.get('RFID_No', 'UNKNOWN')
-         
+            # Embed link to view_history page with query param
+            row['Status'] = f'<a href="./view_history?rfid_filter={rfid_no}" target="_blank">View History</a>'
+
         return rows
+
     except Exception as e:
         st.error(f"❌ Failed to fetch appointments: {e}")
         return []
