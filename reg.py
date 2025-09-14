@@ -57,9 +57,9 @@ def get_current_appointments():
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("""
-            SELECT * FROM appointments
-            WHERE appointment_datetime >= NOW()
-            ORDER BY appointment_datetime ASC
+            SELECT * FROM E_Case
+            WHERE Date_Time >= NOW()
+            ORDER BY Date_Time ASC
         """)
         rows = cursor.fetchall()
         return rows
@@ -69,6 +69,7 @@ def get_current_appointments():
     finally:
         cursor.close()
         conn.close()
+
 
 st.title("🧾 Patient Registration System")
 
