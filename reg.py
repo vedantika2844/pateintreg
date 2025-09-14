@@ -55,22 +55,26 @@ def get_all_medical_history():
         conn.close()
 
 # ----------------- Get Current Appointments -----------------
-def get_current_appointments():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+elif menu == "Current Appointments":
+    st.subheader("📅 Current Appointments")
     try:
-        cursor.execute("SELECT * FROM E_Case ORDER BY Date_Time DESC")
-        rows = cursor.fetchall()
-        for row in rows:
-            rfid_no = row.get('RFID_No', 'UNKNOWN')
-            row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
-        return rows
+        appointments = get_current_appointments()
+        if appointments:
+            df = pd.DataFrame(appointments)
+
+            # Only keep necessary columns
+            display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
+
+            # Convert to HTML to allow links to be clickable
+            html_table = display_df.to_html(escape=False, index=False)
+
+            st.markdown("### Appointments Table")
+            st.write(html_table, unsafe_allow_html=True)
+
+        else:
+            st.info("No current appointments found.")
     except Exception as e:
-        st.error(f"❌ Failed to fetch appointments: {e}")
-        return []
-    finally:
-        cursor.close()
-        conn.close()
+        st.error(f"❌ Error fetching appointments: {e}")
 
 
 # ----------------- Streamlit UI -----------------
