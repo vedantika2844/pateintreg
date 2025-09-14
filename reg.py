@@ -76,7 +76,6 @@ def get_current_appointments():
 
 st.title("🧾 Patient Registration System")
 
-st.title("🧾 Patient Registration System")
 
 rfid_filter = st.query_params.get("rfid_filter", [None])[0]
 
