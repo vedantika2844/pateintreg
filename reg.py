@@ -77,10 +77,8 @@ def get_current_appointments():
 st.title("🧾 Patient Registration System")
 
 # Get query params for RFID filter to show medical history on link click
-query_params = st.experimental_get_query_params()
-rfid_filter = query_params.get("rfid_filter", [None])[0]
-
 if rfid_filter:
+    rfid_filter = st.query_params.get("rfid_filter", [None])[0]
     # Show medical history for the selected RFID
     st.subheader(f"📖 Medical History for RFID: {rfid_filter}")
     try:
