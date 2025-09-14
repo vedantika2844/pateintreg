@@ -63,7 +63,7 @@ def get_current_appointments():
         rows = cursor.fetchall()
         for row in rows:
             rfid_no = row.get('RFID_No', 'UNKNOWN')
-            row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
+         
         return rows
     except Exception as e:
         st.error(f"❌ Failed to fetch appointments: {e}")
