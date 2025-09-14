@@ -1,4 +1,4 @@
-import streamlit as st
+ import streamlit as st
 import mysql.connector
 import pandas as pd
 from datetime import datetime
@@ -77,7 +77,7 @@ def get_current_appointments():
 st.title("🧾 Patient Registration System")
 
 # Get query params for RFID filter to show medical history on link click
- rfid_filter = st.query_params.get("rfid_filter", [None])[0]
+  rfid_filter = st.query_params.get("rfid_filter", [None])[0]
 if rfid_filter:
    
     # Show medical history for the selected RFID
