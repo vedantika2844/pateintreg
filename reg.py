@@ -56,9 +56,9 @@ def get_all_patients():
         
 # Function to fetch current appointment records
 
-  def get_current_appointments():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+   def get_current_appointments():
+     conn = get_connection()
+     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("""
             SELECT * FROM appointments
