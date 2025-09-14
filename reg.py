@@ -63,7 +63,8 @@ def get_current_appointments():
         # Modify each row's status field to be a clickable URL with query param
         for row in rows:
             rfid_no = row['RFID_No']
-            row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
+row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
+
         
         return rows
     except Exception as e:
