@@ -164,7 +164,7 @@ elif menu == "View Medical History":
         rfid_input = st.text_input("Enter RFID No to filter (optional)")
         data = get_all_medical_history()
 
-        if rfid_input:
+        if rfid_input: 
             data = [r for r in data if r.get('RFID_No') == rfid_input or r.get('RFIDNO') == rfid_input]
 
         if data:
