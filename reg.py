@@ -65,7 +65,7 @@ elif menu == "Current Appointments":
             # Only keep necessary columns
             display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
 
-            # Convert to HTML to allow links to be clickable
+            # Convert DataFrame to HTML table with clickable links
             html_table = display_df.to_html(escape=False, index=False)
 
             st.markdown("### Appointments Table")
@@ -75,6 +75,8 @@ elif menu == "Current Appointments":
             st.info("No current appointments found.")
     except Exception as e:
         st.error(f"❌ Error fetching appointments: {e}")
+
+        
 
 
 # ----------------- Streamlit UI -----------------
