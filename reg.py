@@ -58,17 +58,17 @@ def get_current_appointments():
     try:
         cursor.execute("""
             SELECT * FROM E_Case
-            WHERE Date_Time >= NOW()
-            ORDER BY Date_Time ASC
+            ORDER BY Date_Time DESC
         """)
         rows = cursor.fetchall()
         return rows
     except Exception as e:
-        st.error(f"❌ Failed to fetch current appointments: {e}")
+        st.error(f"❌ Failed to fetch appointments: {e}")
         return []
     finally:
         cursor.close()
         conn.close()
+
 
 
 st.title("🧾 Patient Registration System")
