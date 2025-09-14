@@ -3,7 +3,7 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 
-# ----------------- DB Connection -----------------
+# -------------------- DB Connection --------------------
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66",
@@ -12,7 +12,7 @@ def get_connection():
         database="u263681140_students"
     )
 
-# ----------------- Insert Patient -----------------
+# -------------------- Insert Patient --------------------
 def insert_patient(data):
     conn = get_connection()
     cursor = conn.cursor()
@@ -26,7 +26,7 @@ def insert_patient(data):
     cursor.close()
     conn.close()
 
-# ----------------- Get All Patients -----------------
+# -------------------- Fetch All Patients --------------------
 def get_all_patients():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -36,12 +36,12 @@ def get_all_patients():
     conn.close()
     return rows
 
-# ----------------- Get Medical History -----------------
+# -------------------- Fetch Medical History --------------------
 def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ table name fixed
+        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Confirmed table name
         rows = cursor.fetchall()
         if not rows or cursor.description is None:
             return []
@@ -54,38 +54,31 @@ def get_all_medical_history():
         cursor.close()
         conn.close()
 
-# ----------------- Get Current Appointments -----------------
-  elif menu == "Current Appointments":
-    st.subheader("📅 Current Appointments")
+# -------------------- Fetch Appointments --------------------
+def get_current_appointments():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
     try:
-        appointments = get_current_appointments()
-        if appointments:
-            df = pd.DataFrame(appointments)
-
-            # Only keep necessary columns
-            display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
-
-            # ✅ This is line 58 (likely)
-            html_table = display_df.to_html(escape=False, index=False)
-
-            # Display the table
-            st.markdown("### Appointments Table")
-            st.write(html_table, unsafe_allow_html=True)
-
-        else:
-            st.info("No current appointments found.")
+        cursor.execute("SELECT * FROM E_Case ORDER BY Date_Time DESC")
+        rows = cursor.fetchall()
+        for row in rows:
+            rfid_no = row.get('RFID_No', 'UNKNOWN')
+            row['Status'] = f'<a href="?rfid_filter={rfid_no}">View History</a>'
+        return rows
     except Exception as e:
-        st.error(f"❌ Error fetching appointments: {e}")
+        st.error(f"❌ Failed to fetch appointments: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
 
-            
 
+# -------------------- Streamlit UI --------------------
 
-# ----------------- Streamlit UI -----------------
-
-st.set_page_config(page_title="Patient Registration", layout="wide")
+st.set_page_config(page_title="Patient System", layout="wide")
 st.title("🧾 Patient Registration System")
 
-# ✅ Check for query param to display medical history directly
+# ✅ Check for RFID in query params to directly show medical history
 rfid_filter = st.query_params.get("rfid_filter", [None])[0]
 
 if rfid_filter:
@@ -105,11 +98,11 @@ if rfid_filter:
     st.markdown("[🔙 Back to Main Page](./)", unsafe_allow_html=True)
     st.stop()
 
-# --------------- Menu Navigation ----------------
-
+# -------------------- Sidebar Menu --------------------
 menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "Current Appointments"])
 
-# ---------------- Register Patient ----------------
+
+# -------------------- Register Patient --------------------
 if menu == "Register Patient":
     with st.form("patient_form"):
         st.subheader("Register New Patient")
@@ -135,16 +128,14 @@ if menu == "Register Patient":
 
                 dob_str = dob.strftime('%Y-%m-%d')
 
-                insert_patient((
-                    name, rfid, age, gender, blood_group, dob_str,
-                    contact, email, address, doctor
-                ))
-
+                insert_patient((name, rfid, age, gender, blood_group, dob_str,
+                                contact, email, address, doctor))
                 st.success("✅ Patient registered successfully!")
+
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
-# ---------------- View All Patients ----------------
+# -------------------- View All Patients --------------------
 elif menu == "View All Patients":
     st.subheader("📋 All Registered Patients")
     try:
@@ -157,14 +148,14 @@ elif menu == "View All Patients":
     except Exception as e:
         st.error(f"❌ Error fetching patients: {e}")
 
-# ---------------- View Medical History ----------------
+# -------------------- View Medical History --------------------
 elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
     try:
         rfid_input = st.text_input("Enter RFID No to filter (optional)")
         data = get_all_medical_history()
 
-        if rfid_input: 
+        if rfid_input:
             data = [r for r in data if r.get('RFID_No') == rfid_input or r.get('RFIDNO') == rfid_input]
 
         if data:
@@ -175,27 +166,31 @@ elif menu == "View Medical History":
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
 
-# ---------------- Current Appointments ----------------
+# -------------------- Current Appointments --------------------
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
     try:
         appointments = get_current_appointments()
+
         if appointments:
             df = pd.DataFrame(appointments)
 
-            # Use markdown to display with HTML links
-            for _, row in df.iterrows():
-                rfid = row.get('RFID_No', 'N/A')
-                date_time = row.get('Date_Time', 'N/A')
-                status = row.get('Status', '')
+            # ✅ Validate required columns
+            if {'RFID_No', 'Date_Time', 'Status'}.issubset(df.columns):
+                display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
 
-                st.markdown(f"""
-                **RFID:** {rfid}  
-                **Date/Time:** {date_time}  
-                **Status:** {status}  
-                ---
-                """, unsafe_allow_html=True)
+                # ✅ Convert to HTML with clickable links
+                html_table = display_df.to_html(escape=False, index=False)
+
+                st.markdown("### Appointments Table")
+                st.write(html_table, unsafe_allow_html=True)
+
+            else:
+                st.warning("Expected columns not found in appointment data.")
+                st.dataframe(df)
+
         else:
             st.info("No current appointments found.")
+
     except Exception as e:
         st.error(f"❌ Error fetching appointments: {e}")
