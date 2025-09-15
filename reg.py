@@ -12,7 +12,7 @@ def get_connection():
         database="u263681140_students"
     )
 
-# -------------------- Insert Patient --------------------
+# -------------------- Insert Patient -------------------- 
 def insert_patient(data):
     conn = get_connection()
     cursor = conn.cursor()
