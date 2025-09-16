@@ -37,11 +37,11 @@ def get_all_patients():
     return rows
 
 # -------------------- Fetch Medical History --------------------
-def get_all_medical__history1():
+def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Confirmed table name
+        cursor.execute("SELECT * FROM medical_histroy1 ORDER BY ID DESC")  # ✅ Correct table name
         rows = cursor.fetchall()
         if not rows or cursor.description is None:
             return []
@@ -55,8 +55,6 @@ def get_all_medical__history1():
         conn.close()
 
 # -------------------- Fetch Appointments --------------------
-
-        
 def get_current_appointments():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -64,10 +62,8 @@ def get_current_appointments():
         cursor.execute("SELECT * FROM E_Case ORDER BY Date_Time DESC")
         rows = cursor.fetchall()
 
-        # ✅ Add clickable View History link for each row
         for row in rows:
             rfid_no = row.get('RFID_No', 'UNKNOWN')
-            # Embed link to view_history page with query param
             row['Status'] = f'<a href="./view_history?rfid_filter={rfid_no}" target="_blank">View History</a>'
 
         return rows
@@ -78,7 +74,6 @@ def get_current_appointments():
     finally:
         cursor.close()
         conn.close()
-
 
 # -------------------- Streamlit UI --------------------
 
@@ -92,7 +87,7 @@ if rfid_filter:
     st.subheader(f"📖 Medical History for RFID: {rfid_filter}")
     try:
         data = get_all_medical_history()
-        filtered_data = [record for record in data if record.get('RFID_No') == rfid_filter or record.get('RFIDNO') == rfid_filter]
+        filtered_data = [record for record in data if record.get('RFIDNo') == rfid_filter]
 
         if filtered_data:
             df = pd.DataFrame(filtered_data)
@@ -107,7 +102,6 @@ if rfid_filter:
 
 # -------------------- Sidebar Menu --------------------
 menu = st.sidebar.radio("Menu", ["Register Patient", "View All Patients", "View Medical History", "Current Appointments"])
-
 
 # -------------------- Register Patient --------------------
 if menu == "Register Patient":
@@ -163,7 +157,7 @@ elif menu == "View Medical History":
         data = get_all_medical_history()
 
         if rfid_input:
-            data = [r for r in data if r.get('RFID_No') == rfid_input or r.get('RFIDNO') == rfid_input]
+            data = [r for r in data if r.get('RFIDNo') == rfid_input]  # ✅ Corrected column name
 
         if data:
             df = pd.DataFrame(data)
@@ -182,11 +176,8 @@ elif menu == "Current Appointments":
         if appointments:
             df = pd.DataFrame(appointments)
 
-            # ✅ Validate required columns
             if {'RFID_No', 'Date_Time', 'Status'}.issubset(df.columns):
                 display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
-
-                # ✅ Convert to HTML with clickable links
                 html_table = display_df.to_html(escape=False, index=False)
 
                 st.markdown("### Appointments Table")
