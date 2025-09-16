@@ -175,7 +175,7 @@ elif menu == "View Medical History":
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
 
-# -------------------- Current Appointments --------------------
+# -------------------- Current Appointments -------------------- 
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
     try:
