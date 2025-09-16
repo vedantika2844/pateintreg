@@ -48,8 +48,8 @@ def get_medical_history_by_rfid(rfidno):
         )
         rows = cursor.fetchall()
         
-        if not rows or cursor.description is None:
-            return []
+        #if not rows or cursor.description is None:
+        #    return []
 
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
