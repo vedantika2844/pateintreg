@@ -43,7 +43,7 @@ def get_medical_history_by_rfid(rfidno):
     try:
         # ✅ Use parameterized query to prevent SQL injection
         cursor.execute(
-            "SELECT * FROM medical_histroy WHERE rfid_no = %s ORDER BY ID DESC",
+            "SELECT * FROM medical_histroy WHERE RFIDNo = %s ORDER BY ID DESC",
             (rfidno,)
         )
         rows = cursor.fetchall()
