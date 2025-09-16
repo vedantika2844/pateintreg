@@ -93,7 +93,7 @@ rfid_filter = st.query_params.get("rfid_filter", [None])[0]
 if rfid_filter:
     st.subheader(f"📖 Medical History for RFID: {rfid_filter}")
     try:
-        data = get_all_medical_history()
+        data = get_medical_history_by_rfid(rfid_input)
         filtered_data = [record for record in data if record.get('RFIDNo') == rfid_filter]
 
         if filtered_data:
