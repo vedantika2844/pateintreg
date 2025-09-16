@@ -37,7 +37,7 @@ def get_all_patients():
     return rows
 
 # -------------------- Fetch Medical History --------------------
-def get_all_medical_history():
+def get_all_medical__history1():
     conn = get_connection()
     cursor = conn.cursor()
     try:
