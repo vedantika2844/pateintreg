@@ -41,7 +41,7 @@ def get_all_medical_history():
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy1 ORDER BY ID DESC")  # ✅ Correct table
+        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Correct table
         rows = cursor.fetchall()
         if not rows or cursor.description is None:
             return []
