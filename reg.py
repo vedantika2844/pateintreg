@@ -71,7 +71,7 @@ def get_current_appointments():
 
         for row in rows:
             rfid_no = row.get('RFID_No', 'UNKNOWN')
-            row['Status'] = f'<a href="./view_history?rfid_filter={rfid_no}" target="_">View History</a>'
+            row['Status'] = f'<a href="./view_history?rfid_filter={rfid_no}" target="_blank">View History</a>'
 
         return rows
 
