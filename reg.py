@@ -3,7 +3,7 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 
-# -------------------- DB Connection --------------------
+# -------------------- DB Connection -------------------- 
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66",
