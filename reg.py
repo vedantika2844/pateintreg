@@ -37,18 +37,26 @@ def get_all_patients():
     return rows
 
 # -------------------- Fetch Medical History --------------------
-def get_all_medical_history():
+
+   def get_medical_history_by_rfid(rfidno):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM medical_histroy ORDER BY ID DESC")  # ✅ Correct table
+        # ✅ Use parameterized query to prevent SQL injection
+        cursor.execute(
+            "SELECT * FROM medical_histroy WHERE rfid_no = %s ORDER BY ID DESC",
+            (rfidno,)
+        )
         rows = cursor.fetchall()
+        
         if not rows or cursor.description is None:
             return []
+
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in rows]
+
     except Exception as e:
-        st.error(f"❌ Error fetching medical history: {e}")
+        st.error(f"❌ Error fetching medical history for RFID {rfidno}: {e}")
         return []
     finally:
         cursor.close()
