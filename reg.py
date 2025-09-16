@@ -149,7 +149,7 @@ elif menu == "View All Patients":
     except Exception as e:
         st.error(f"❌ Error fetching patients: {e}")
 
-# -------------------- View Medical History --------------------
+# -------------------- View Medical History -------------------
 elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
 
@@ -158,7 +158,7 @@ elif menu == "View Medical History":
         data = get_all_medical_history()
 
         if rfid_input:
-            data = [record for record in data if record.get('RFIDNo') == rfid_input]
+            data = [record for record in data if rfid_input.lower() in record.get('RFIDNo', '').lower()]
 
         if data:
             df = pd.DataFrame(data)
