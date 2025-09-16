@@ -154,7 +154,7 @@ elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
 
     try:
-        rfid_input = st.text_input("Enter RFID No to filter (optional)")
+        rfid_input = st.text_input("Enter RFIDNo to filter (optional)")
         data = get_all_medical_history()
 
         if rfid_input:
