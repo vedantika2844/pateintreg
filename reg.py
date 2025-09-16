@@ -162,7 +162,7 @@ elif menu == "View Medical History":
 
     try:
         rfid_input = st.text_input("Enter RFIDNo to filter (optional)")
-        data = get_all_medical_history( "41E2014B")
+        data = get_medical_history_by_rfid(rfid_input)
 
         if rfid_input:
             data = [record for record in data if rfid_input.lower() in record.get('RFIDNo', '').lower()]
