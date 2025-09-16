@@ -37,8 +37,7 @@ def get_all_patients():
     return rows
 
 # -------------------- Fetch Medical History --------------------
-
-   def get_medical_history_by_rfid(rfidno):
+def get_medical_history_by_rfid(rfidno):
     conn = get_connection()
     cursor = conn.cursor()
     try:
