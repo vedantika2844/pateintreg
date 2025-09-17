@@ -211,23 +211,31 @@ elif menu == "Current Appointments":
                     cols[1].write(f"**Date & Time:** {row['Date_Time']}")
                     
                     # Status display with colored dot and text
-                    if row['Status'] == 1:
-                        status_str = "🟢 Active"
-                    else:
-                        status_str = "🔴 Inactive"
-                    cols[2].write(f"**Status:** {status_str}")
+                  
+try:
+    status_value = int(row['Status'])
+except Exception:
+    status_value = 0
 
-                    # Show update button only if status == 1
-                    if row['Status'] == 1:
-                        if cols[3].button("Update", key=f"update_{row['RFID_No']}"):
-                            deleted = delete_appointment_by_rfid(row['RFID_No'])
-                            if deleted:
-                                st.success(f"✅ Appointment with RFID {row['RFID_No']} deleted.")
-                                st.experimental_rerun()
-                            else:
-                                st.error(f"❌ Failed to delete appointment with RFID {row['RFID_No']}.")
-                    else:
-                        cols[3].write("")  # Empty cell when no button
+if status_value == 1:
+    status_str = "🟢 Active"
+else:
+    status_str = "🔴 Inactive"
+
+cols[2].write(f"**Status:** {status_str}")
+
+# Show update button only if status == 1
+if status_value == 1:
+    if cols[3].button("Update", key=f"update_{row['RFID_No']}"):
+        deleted = delete_appointment_by_rfid(row['RFID_No'])
+        if deleted:
+            st.success(f"✅ Appointment with RFID {row['RFID_No']} deleted.")
+            st.experimental_rerun()
+        else:
+            st.error(f"❌ Failed to delete appointment with RFID {row['RFID_No']}.")
+else:
+    cols[3].write("")  # Empty cell when no button
+
 
             else:
                 st.warning("Expected columns not found in appointment data.")
