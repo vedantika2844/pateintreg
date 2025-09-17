@@ -213,6 +213,8 @@ elif menu == "View Medical History":
         st.error(f"❌ Error fetching medical history: {e}")
 
 # -------------------- Current Appointments --------------------
+
+                   # -------------------- Current Appointments --------------------
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
 
@@ -251,4 +253,8 @@ elif menu == "Current Appointments":
                         if cols[2].button("Activate", key=f"activate_btn_{i}"):
                             if toggle_status(rfid):
                                 st.success(f"✅ Status changed to Active for {rfid}")
-                                st.experimental_rer
+                                st.experimental_rerun()
+
+    except Exception as e:
+        st.error(f"❌ Error displaying appointments: {e}")
+
