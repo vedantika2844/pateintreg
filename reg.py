@@ -51,7 +51,7 @@ def get_medical_history_by_rfid(rfidno="41E2014B"):
             (rfidno,)
         )
         rows = cursor.fetchall()
-        st.write(f"Filtering by RFIDNo: {rfidno}")
+        st.write(f"Filtering by RFIDNo: {rfidno}") 
         return rows if rows else []
 
     except Exception as e:
