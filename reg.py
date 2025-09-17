@@ -41,7 +41,6 @@ def get_medical_history_by_rfid(rfidno="41E2014B"):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
-        # ✅ Select all columns, filter by RFIDNo
         cursor.execute(
             """
             SELECT * 
@@ -54,7 +53,6 @@ def get_medical_history_by_rfid(rfidno="41E2014B"):
         rows = cursor.fetchall()
         st.write(f"Filtering by RFIDNo: {rfidno}")
         return rows if rows else []
-
     except Exception as e:
         st.error(f"❌ Error fetching medical history for RFID {rfidno}: {e}")
         return []
@@ -69,16 +67,25 @@ def get_current_appointments():
     try:
         cursor.execute("SELECT * FROM E_Case ORDER BY Date_Time DESC")
         rows = cursor.fetchall()
-
-        for row in rows:
-            rfid_no = row.get('RFID_No', 'UNKNOWN')
-            row['Status'] = f'<a href="./view_history?rfid_filter={rfid_no}" target="_blank">View History</a>'
-
         return rows
-
     except Exception as e:
         st.error(f"❌ Failed to fetch appointments: {e}")
         return []
+    finally:
+        cursor.close()
+        conn.close()
+
+# -------------------- Delete Appointment by RFID (if status == 1) --------------------
+def delete_appointment_by_rfid(rfid_no):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM E_Case WHERE RFID_No = %s AND Status = 1", (rfid_no,))
+        conn.commit()
+        return cursor.rowcount  # Number of rows deleted
+    except Exception as e:
+        st.error(f"❌ Error deleting appointment for RFID {rfid_no}: {e}")
+        return 0
     finally:
         cursor.close()
         conn.close()
@@ -94,7 +101,7 @@ rfid_filter = st.query_params.get("rfid_filter", [None])[0]
 if rfid_filter:
     st.subheader(f"📖 Medical History for RFID: {rfid_filter}")
     try:
-        data = get_medical_history_by_rfid(rfid_input)
+        data = get_medical_history_by_rfid(rfid_filter)
         filtered_data = [record for record in data if record.get('RFIDNo') == rfid_filter]
 
         if filtered_data:
@@ -162,12 +169,10 @@ elif menu == "View Medical History":
     st.subheader("📖 Medical History Records")
 
     try:
-        # 🔹 Get all appointments first
         appointments = get_current_appointments()
-        rfid_list = [row['RFID_No'] for row in appointments if row.get('RFID_No')]
+        rfid_list = sorted(list(set(row['RFID_No'] for row in appointments if row.get('RFID_No'))))
 
         if rfid_list:
-            # 🔹 Dropdown for selecting RFID
             selected_rfid = st.selectbox("Select RFID to view history", rfid_list)
 
             if selected_rfid:
@@ -187,25 +192,33 @@ elif menu == "View Medical History":
 # -------------------- Current Appointments -------------------- 
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
+
     try:
         appointments = get_current_appointments()
 
-        if appointments:
-            df = pd.DataFrame(appointments)
-
-            if {'RFID_No', 'Date_Time', 'Status'}.issubset(df.columns):
-                display_df = df[['RFID_No', 'Date_Time', 'Status']].copy()
-                html_table = display_df.to_html(escape=False, index=False)
-
-                st.markdown("### Appointments Table")
-                st.write(html_table, unsafe_allow_html=True)
-
-            else:
-                st.warning("Expected columns not found in appointment data.")
-                st.dataframe(df)
-
-        else:
+        if not appointments:
             st.info("No current appointments found.")
+        else:
+            for i, appointment in enumerate(appointments):
+                rfid = appointment.get("RFID_No", "Unknown")
+                date_time = appointment.get("Date_Time", "N/A")
+                status = appointment.get("Status", 0)
+
+                col1, col2, col3, col4 = st.columns([3, 3, 2, 2])
+                col1.markdown(f"**RFID:** {rfid}")
+                col2.markdown(f"**Date & Time:** {date_time}")
+                col3.markdown(f"**Status:** {'🟢 Active' if status == 1 else '🔴 Inactive'}")
+
+                if status == 1:
+                    if col4.button("Delete", key=f"delete_{i}"):
+                        deleted = delete_appointment_by_rfid(rfid)
+                        if deleted:
+                            st.success(f"✅ Appointment with RFID {rfid} deleted.")
+                            st.experimental_rerun()
+                        else:
+                            st.warning(f"⚠️ No rows deleted for RFID {rfid}.")
+
+                st.markdown("---")
 
     except Exception as e:
-        st.error(f"❌ Error fetching appointments: {e}")
+        st.error(f"❌ Error displaying appointments: {e}")
