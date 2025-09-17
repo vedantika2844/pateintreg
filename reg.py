@@ -3,7 +3,7 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 
-# -------------------- DB Connection -------------------- 
+# -------------------- DB Connection --------------------
 def get_connection():
     return mysql.connector.connect(
         host="82.180.143.66",
@@ -89,6 +89,26 @@ def update_rfid(old_rfid, new_rfid):
     except Exception as e:
         st.error(f"❌ Error updating RFID from {old_rfid} to {new_rfid}: {e}")
         return 0
+    finally:
+        cursor.close()
+        conn.close()
+
+# -------------------- Toggle Status --------------------
+def toggle_status(rfid):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT Status FROM E_Case WHERE RFID_No = %s", (rfid,))
+        current = cursor.fetchone()
+        if current:
+            new_status = 0 if current[0] == 1 else 1
+            cursor.execute("UPDATE E_Case SET Status = %s WHERE RFID_No = %s", (new_status, rfid))
+            conn.commit()
+            return True
+        return False
+    except Exception as e:
+        st.error(f"❌ Failed to toggle status: {e}")
+        return False
     finally:
         cursor.close()
         conn.close()
@@ -192,7 +212,7 @@ elif menu == "View Medical History":
     except Exception as e:
         st.error(f"❌ Error fetching medical history: {e}")
 
-# -------------------- Current Appointments -------------------- 
+# -------------------- Current Appointments --------------------
 elif menu == "Current Appointments":
     st.subheader("📅 Current Appointments")
 
@@ -202,38 +222,33 @@ elif menu == "Current Appointments":
         if not appointments:
             st.info("No current appointments found.")
         else:
-            st.markdown("### Appointments Table")
+            st.markdown("### Appointments")
 
-            # Create a table with editable RFID input and Update buttons
             for i, appointment in enumerate(appointments):
                 rfid = appointment.get("RFID_No", "Unknown")
                 date_time = appointment.get("Date_Time", "N/A")
                 status = appointment.get("Status", 0)
 
                 with st.container():
-                    cols = st.columns([2, 3, 2, 3, 2])
+                    cols = st.columns([2, 3, 4])
                     cols[0].markdown(f"**RFID:** {rfid}")
                     cols[1].markdown(f"**Date & Time:** {date_time}")
-                    cols[2].markdown(f"**Status:** {'🟢 Active' if status == 1 else '🔴 Inactive'}")
 
                     if status == 1:
-                        new_rfid_input = cols[3].text_input("Enter New RFID", key=f"new_rfid_{i}")
-                        if cols[4].button("Update", key=f"update_btn_{i}"):
-                            if new_rfid_input.strip() == "":
+                        new_rfid = cols[2].text_input("Enter new RFID", key=f"new_rfid_{i}")
+                        if cols[2].button("Update", key=f"update_btn_{i}"):
+                            if not new_rfid.strip():
                                 st.warning("⚠️ Please enter a new RFID before updating.")
                             else:
-                                updated = update_rfid(rfid, new_rfid_input.strip())
+                                updated = update_rfid(rfid, new_rfid.strip())
                                 if updated:
-                                    st.success(f"✅ RFID updated from {rfid} to {new_rfid_input}")
+                                    st.success(f"✅ RFID updated from {rfid} to {new_rfid}")
                                     st.experimental_rerun()
                                 else:
-                                    st.error(f"❌ Failed to update RFID for {rfid}")
+                                    st.error(f"❌ Update failed.")
                     else:
-                        cols[3].markdown("—")
-                        cols[4].markdown("—")
-
-                st.markdown("---")
-
-    except Exception as e:
-        st.error(f"❌ Error displaying appointments: {e}")
-
+                        cols[2].markdown("🔴 Inactive")
+                        if cols[2].button("Activate", key=f"activate_btn_{i}"):
+                            if toggle_status(rfid):
+                                st.success(f"✅ Status changed to Active for {rfid}")
+                                st.experimental_rer
