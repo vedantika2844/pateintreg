@@ -75,16 +75,19 @@ def get_current_appointments():
         cursor.close()
         conn.close()
 
-# -------------------- Delete Appointment by RFID (if status == 1) --------------------
-def delete_appointment_by_rfid(rfid_no):
+# -------------------- Update RFID --------------------
+def update_rfid(old_rfid, new_rfid):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("DELETE FROM E_Case WHERE RFID_No = %s AND Status = 1", (rfid_no,))
+        cursor.execute(
+            "UPDATE E_Case SET RFID_No = %s WHERE RFID_No = %s AND Status = 1",
+            (new_rfid, old_rfid)
+        )
         conn.commit()
-        return cursor.rowcount  # Number of rows deleted
+        return cursor.rowcount
     except Exception as e:
-        st.error(f"❌ Error deleting appointment for RFID {rfid_no}: {e}")
+        st.error(f"❌ Error updating RFID from {old_rfid} to {new_rfid}: {e}")
         return 0
     finally:
         cursor.close()
@@ -199,26 +202,38 @@ elif menu == "Current Appointments":
         if not appointments:
             st.info("No current appointments found.")
         else:
+            st.markdown("### Appointments Table")
+
+            # Create a table with editable RFID input and Update buttons
             for i, appointment in enumerate(appointments):
                 rfid = appointment.get("RFID_No", "Unknown")
                 date_time = appointment.get("Date_Time", "N/A")
                 status = appointment.get("Status", 0)
 
-                col1, col2, col3, col4 = st.columns([3, 3, 2, 2])
-                col1.markdown(f"**RFID:** {rfid}")
-                col2.markdown(f"**Date & Time:** {date_time}")
-                col3.markdown(f"**Status:** {'🟢 Active' if status == 1 else '🔴 Inactive'}")
+                with st.container():
+                    cols = st.columns([2, 3, 2, 3, 2])
+                    cols[0].markdown(f"**RFID:** {rfid}")
+                    cols[1].markdown(f"**Date & Time:** {date_time}")
+                    cols[2].markdown(f"**Status:** {'🟢 Active' if status == 1 else '🔴 Inactive'}")
 
-                if status == 1:
-                    if col4.button("Delete", key=f"delete_{i}"):
-                        deleted = delete_appointment_by_rfid(rfid)
-                        if deleted:
-                            st.success(f"✅ Appointment with RFID {rfid} deleted.")
-                            st.experimental_rerun()
-                        else:
-                            st.warning(f"⚠️ No rows deleted for RFID {rfid}.")
+                    if status == 1:
+                        new_rfid_input = cols[3].text_input("Enter New RFID", key=f"new_rfid_{i}")
+                        if cols[4].button("Update", key=f"update_btn_{i}"):
+                            if new_rfid_input.strip() == "":
+                                st.warning("⚠️ Please enter a new RFID before updating.")
+                            else:
+                                updated = update_rfid(rfid, new_rfid_input.strip())
+                                if updated:
+                                    st.success(f"✅ RFID updated from {rfid} to {new_rfid_input}")
+                                    st.experimental_rerun()
+                                else:
+                                    st.error(f"❌ Failed to update RFID for {rfid}")
+                    else:
+                        cols[3].markdown("—")
+                        cols[4].markdown("—")
 
                 st.markdown("---")
 
     except Exception as e:
         st.error(f"❌ Error displaying appointments: {e}")
+
